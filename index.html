@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Адвент Календарь Когтевран</title>
+
+<style>
+body {
+    font-family: 'Georgia', serif;
+    background: url('https://th.bing.com/th/id/OIG4.eDNrJ_yOZcpTsmqrH.p2?r=0&o=5&dpr=1.3&pid=ImgGn') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+h1 {
+    padding: 20px;
+    text-shadow: 2px 2px 5px #000;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(6, 100px);
+    gap: 10px;
+    justify-content: center;
+    margin: 20px;
+}
+
+.day {
+    background: rgba(0,0,50,0.7);
+    border: 2px solid #fff;
+    border-radius: 10px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 0.2s, background 0.3s;
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+.day:hover {
+    transform: scale(1.1);
+    background: rgba(0,0,80,0.8);
+    box-shadow: 0 0 20px rgba(255,255,255,0.8);
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,70,0.95);
+    border: 2px solid #fff;
+    border-radius: 15px;
+    padding: 20px;
+    width: 400px;
+    max-width: 90%;
+    z-index: 10;
+    text-align: center;
+    animation: popupFade 0.5s ease-in-out;
+}
+
+.popup img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.close {
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.snowflake {
+    position: fixed;
+    top: -10px;
+    color: #fff;
+    animation: snow linear infinite;
+}
+
+@keyframes snow {
+    from { transform: translateY(-10px); }
+    to { transform: translateY(100vh); }
+}
+
+.sparkle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: sparkleAnim 1.5s infinite;
+}
+
+@keyframes sparkleAnim {
+    0% {opacity:0;}
+    50% {opacity:1;}
+    100% {opacity:0;}
+}
+
+@keyframes popupFade {
+    from {opacity:0; transform: translate(-50%, -60%) scale(0.8);}
+    to {opacity:1; transform: translate(-50%, -50%) scale(1);}
+}
+</style>
+</head>
+
+<body>
+
+<h1>Адвент Календарь Когтевран</h1>
+
+<div class="calendar" id="calendar"></div>
+
+<div class="popup" id="popup">
+    <img id="giftImage" src="">
+    <p id="giftDescription"></p>
+    <button class="close" onclick="closePopup()">Закрыть</button>
+</div>
+
+<script>
+// Снежинки
+for (let i = 0; i < 50; i++) {
+    const snow = document.createElement('div');
+    snow.className = 'snowflake';
+    snow.textContent = '❄';
+    snow.style.left = Math.random() * 100 + '%';
+    snow.style.fontSize = (Math.random() * 10 + 10) + 'px';
+    snow.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    document.body.appendChild(snow);
+}
+
+// Подарки Когтеврана
+const gifts = [
+ {img:'https://th.bing.com/th/id/OIG2.x.EMOqmQO6gclq1UdxaL?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Маленькая фея знаний, шепчет тайные мудрости.'},
+ {img:'https://th.bing.com/th/id/OIG2.chSahZZ.PVZgstjgjmCW?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Светящийся пергамент, на котором пишутся только верные мысли.'},
+ {img:'https://th.bing.com/th/id/OIG4.JWde5fM.W0uhd15A_Rwf?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Перо, которое рисует ваши мечты.'},
+ {img:'https://th.bing.com/th/id/OIG1.CEn3M.eAhTselXpvv21n?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Кристалл памяти — хранит лучшие воспоминания.'},
+ {img:'https://th.bing.com/th/id/OIG3.FJ8PqdXODhH1ZX8uqzY7?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Чашка из которой никогда не выливается зелье счастья.'},
+ {img:'https://th.bing.com/th/id/OIG4.FxPqFP8u8kZvhqtrC5TW?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Снежная сфера Хогвартса'},
+ {img:'https://th.bing.com/th/id/OIG4.j0E5nVhMFJ4Y2eyOWc8k?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Книга живых страниц.'},
+ {img:'https://th.bing.com/th/id/OIG4.BW3O9NKW.pqiFvywuLp2?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Светильник знаний.'},
+ {img:'https://th.bing.com/th/id/OIG3.VH3ZFf3Qfa5RbBPJjBTA?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Звёздная карта добрых дел.'},
+ {img:'https://th.bing.com/th/id/OIG2.3lV0QENh8NujIUhMmarw?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Волшебный компас.'},
+ {img:'https://th.bing.com/th/id/OIG1.CwodgSXSbaMZ8dtZU.pM?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Ручка правды.'},
+ {img:'https://th.bing.com/th/id/OIG4.QVuu_Bf.7yqC56pnrUa3?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Мини-сова.'},
+ {img:'https://th.bing.com/th/id/OIG3.bdMz6NzeyznXmVtC2ry_?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Светлячки желаний.'},
+ {img:'https://th.bing.com/th/id/OIG2.01VUPd9fAAYloQZshL2Q?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Ключ от тайной библиотеки.'},
+ {img:'https://th.bing.com/th/id/OIG2.Xwur0CEldx6JfE42P4Wa?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Очки от скрытой магии'},
+ {img:'https://th.bing.com/th/id/OIG1.P961NuUXO93yAJbpVuSv?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Фонарик радости.'},
+ {img:'https://th.bing.com/th/id/OIG1.PNiwaxZ_2jVMkbk2UzB8?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Песочные часы чтения.'},
+ {img:'https://th.bing.com/th/id/OIG3.Zb4T94sYOyhRAf3jNVnM?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Шкатулка звёзд.'},
+ {img:'https://th.bing.com/th/id/OIG3.b.QSsu.uR2xB3ZtzKR6K?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Магический шоколад.'},
+ {img:'https://th.bing.com/th/id/OIG2.31CtuBqO2y5pDtLRUBEW?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Заколдованный шарф.'},
+ {img:'https://th.bing.com/th/id/OIG3.n40UqPv0nR2zmuu0dWd4?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Перо феникса.'},
+ {img:'https://th.bing.com/th/id/OIG1.wsSMdiK09f9y3gCimHfw?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Зеркало мечты.'},
+ {img:'https://th.bing.com/th/id/OIG2.3M9wtKgp1c9RWDRELLAA?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Лампа тайных троп.'},
+ {img:'https://th.bing.com/th/id/OIG4.LOAIeMk7OD0khr2xHLi5?r=0&o=5&dpr=1.3&pid=ImgGn', desc:'Золотой снежный шар.'}
+];
+
+// Календарь
+const calendar = document.getElementById('calendar');
+
+for (let i = 1; i <= 24; i++) {
+    const day = document.createElement('div');
+    day.className = 'day';
+    day.textContent = i;
+    day.onclick = () => showGift(i - 1);
+    calendar.appendChild(day);
+}
+
+function showGift(index) {
+    document.getElementById('giftImage').src = gifts[index].img;
+    document.getElementById('giftDescription').textContent = gifts[index].desc;
+    document.getElementById('popup').style.display = 'block';
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
